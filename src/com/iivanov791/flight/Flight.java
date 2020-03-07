@@ -28,6 +28,7 @@ public class Flight implements Serializable {
     private final static long serialVersionUID = 1L;
     final String DATE_FORMAT = "dd/MM/yyyy hh:mm";
     final String PLACE_IS_TAKEN = "Sorry, place %d is taken. Choose another place \n";
+    final String OUT_OF_BOUND = "Sorry, place %d doesn't exist, while maximum capacity is %d";
 
     public int getID() {
         return ID;
@@ -71,6 +72,8 @@ public class Flight implements Serializable {
     public void doReservation (int place, Reservation reservation) {
        if (this.reservationMap.get(place) != null) {
            System.out.printf(PLACE_IS_TAKEN, place);
+       } else if (place > this.reservationMap.size()) {
+           System.out.printf(OUT_OF_BOUND, place, this.placesAll);
        } else {
            this.reservationMap.put(place, reservation);
        }

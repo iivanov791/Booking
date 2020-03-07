@@ -25,7 +25,7 @@ public class FlightController {
         return flightService.getFlightDao().deleteFlight(index);
     }
 
-    public void onlineFlightTable (String date) {
+    public void onlineFlightTable () {
         this.flightService.onlineFlightTable();
     }
 
