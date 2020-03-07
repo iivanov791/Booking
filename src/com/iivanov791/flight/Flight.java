@@ -2,6 +2,12 @@ package com.iivanov791.flight;
 
 import com.iivanov791.reservation.Reservation;
 
+import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -10,23 +16,24 @@ import java.util.Objects;
 *
 * */
 
-public class Flight {
-    // here must store Date, not String for date and time. But when creating new Flight user passes String to it constructor.
-    // So you must cast this String to Date via Setter
-    private String date;
-    private String time;
+public class Flight implements Serializable {
+
+    private int ID;
+    private long departureTime;
     private String departurePlace;
     private String arrivingPlace;
     private int placesAll;
     private Map <Integer, Reservation> reservationMap = new HashMap<>(placesAll);
 
-//    private final String DATE_FORMAT = "dd/mm/yyyy";
+    private final static long serialVersionUID = 1L;
+    final String DATE_FORMAT = "dd/MM/yyyy hh:mm";
+    final String PLACE_IS_TAKEN = "Sorry, place %d is taken. Choose another place \n";
 
-    public String getDate() {
-        return date;
+    public int getID() {
+        return ID;
     }
-    public String getTime() {
-        return time;
+    public long getDepartureTime () {
+        return departureTime;
     }
     public String getDeparturePlace() {
         return departurePlace;
@@ -34,40 +41,68 @@ public class Flight {
     public String getArrivingPlace() {
         return arrivingPlace;
     }
-    public int getPlacesAll() {
-        return placesAll;
-    }
     public Map<Integer, Reservation> getReservationMap() {
         return reservationMap;
     }
 
-//    public LocalDate setDate(String date) throws ParseException {
-//        // put some logic about casting String to date here
-//        DateTimeFormatter format = DateTimeFormatter.ofPattern(DATE_FORMAT);
-//        LocalDate flightDate = LocalDate.parse(date, format);
-//        return flightDate.get
-//    }
-//    public LocalDate setTime(String time) {
-//        // put some logic about casting String to date here
-//    }
-
-    public Flight(String date, String time, String departurePlace, String arrivingPlace, int placesAll) {
-        this.date = date;
-        this.time = time;
+    public Flight(String departureTime, String departurePlace, String arrivingPlace, int placesAll) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT);
+        Date date = format.parse(departureTime);
+        this.departureTime = date.getTime();
         this.departurePlace = departurePlace;
         this.arrivingPlace = arrivingPlace;
         this.placesAll = placesAll;
+        this.ID++;
+        for (int i = 1; i <= placesAll; i++) {
+            this.reservationMap.put(i, null);
+        }
     }
 
     public int getFreePlaces () {
-        return getPlacesAll() - getReservationMap().size();
+        int counter = 0;
+        for (int i = 1; i <= reservationMap.size(); i++) {
+            if (reservationMap.get(i) == null) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public void doReservation (int place, Reservation reservation) {
+       if (this.reservationMap.get(place) != null) {
+           System.out.printf(PLACE_IS_TAKEN, place);
+       } else {
+           this.reservationMap.put(place, reservation);
+       }
+    }
+
+    public boolean getTimeToFlight () {
+        Date date = new Date();
+        Date date1 = new Date(this.getDepartureTime());
+        long diff = date1.getTime() - date.getTime();
+        return (int) (diff / (60*60*1000)) <= 24;
+    }
+
+    public String getFormattedDepartureTime() {
+        Timestamp time = new Timestamp(this.getDepartureTime());
+        LocalDateTime t = time.toLocalDateTime();
+        StringBuilder strBld = new StringBuilder();
+        return String.valueOf(strBld
+                .append(t.getDayOfMonth())
+                .append("/")
+                .append(t.getMonth().getValue())
+                .append("/")
+                .append(t.getYear())
+                .append(" ")
+                .append(t.getHour())
+                .append(":")
+                .append(t.withMinute(t.getMinute()).toString().substring(14)));
     }
 
     @Override
     public String toString() {
-        return this.getClass().getName() + "Flight{" +
-                "date=" + getDate() +
-                ", time=" + getTime() +
+        return this.getClass().getName() + "Flight " + getID() +
+                " {Departure Time=" + getFormattedDepartureTime() +
                 ", Departure Place='" + getDeparturePlace() + '\'' +
                 ", Arriving Place='" + getArrivingPlace() + '\'' +
                 ", Free PLaces=" + getFreePlaces() + '}';
@@ -78,15 +113,13 @@ public class Flight {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Flight flight = (Flight) o;
-        return getDate().equals(flight.getDate()) &&
-                getTime().equals(flight.getTime()) &&
-                getDeparturePlace().equals(flight.getDeparturePlace()) &&
+        return getDeparturePlace().equals(flight.getDeparturePlace()) &&
                 getArrivingPlace().equals(flight.getArrivingPlace()) &&
                 getReservationMap().equals(flight.getReservationMap());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDate(), getTime(), getDeparturePlace(), getArrivingPlace(), getReservationMap());
+        return Objects.hash(getDeparturePlace(), getArrivingPlace(), getReservationMap());
     }
 }

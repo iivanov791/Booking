@@ -1,16 +1,22 @@
 package com.iivanov791.reservation;
 
 import com.iivanov791.flight.Flight;
-
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Reservation {
+public class Reservation implements Serializable {
 
+    private int ID;
     private String userName;
     private String userSurname;
     private int place;
     private Flight flight;
 
+    private final static long serialVersionUID = 1L;
+
+    public int getID() {
+        return ID;
+    }
     public String getUserName() {
         return userName;
     }
@@ -23,31 +29,22 @@ public class Reservation {
     public Flight getFlight() {
         return flight;
     }
-//    public void setUserName(String userName) {
-//        this.userName = userName;
-//    }
-//    public void setUserSurname(String userSurname) {
-//        this.userSurname = userSurname;
-//    }
-//    public void setPlace(int place) {
-//        this.place = place;
-//    }
-//    public void setFlight(Flight flight) {
-//        this.flight = flight;
-//    }
 
-    public Reservation(String userName, String userSurname, Flight flight) {
+    public Reservation(String userName, String userSurname, Flight flight, int place) {
         this.userName = userName;
         this.userSurname = userSurname;
         this.flight = flight;
+        this.ID++;
+        this.place = place;
+        this.flight.doReservation(this.getPlace(), this);
     }
 
     @Override
     public String toString() {
-        return "Reservation{" +
-                "userName='" + getUserName() + '\'' +
+        return this.getClass().getName() + "Reservation " + getID() +
+                "{userName='" + getUserName() + '\'' +
                 ", userSurname='" + getUserSurname() + '\'' +
-                ", place=" + getPlace() +
+                ", places=" + getPlace() +
                 ", flight=" + getFlight().toString() +
                 '}';
     }
