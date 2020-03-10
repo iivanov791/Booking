@@ -11,9 +11,9 @@ class FlightTest {
 
     public int fulfillFlight () throws ParseException {
         Flight flight = new Flight("14/03/2020 20:00", "Kyiv", "Buharest", 196);
-        Reservation reservation = new Reservation("Igor", "Ivanov", flight, 1);
-        Reservation reservation1 = new Reservation("Oksana", "Musiienko", flight, 1);
-        System.out.println(flight.getReservationMap());
+        Reservation reservation = new Reservation("Igor", "Ivanov", flight);
+        Reservation reservation1 = new Reservation("Oksana", "Musiienko", flight);
+        System.out.println(flight.getReservationList());
         return flight.getFreePlaces();
     }
 
@@ -21,19 +21,19 @@ class FlightTest {
     void getFreePlaces() throws ParseException {
         Flight flight = new Flight("14/03/2020 19:00", "Kyiv", "Roma", 298);
         assertEquals(298, flight.getFreePlaces());
-        assertEquals(195, fulfillFlight());
+        assertEquals(194, fulfillFlight());
     }
 
     @Test
     void getTimeToFlight () throws ParseException {
-        Flight flight = new Flight ("09/03/2020 15:20", "Kyiv", "Vienna", 160);
-        assertFalse(flight.getTimeToFlight());
+        Flight flight = new Flight ("11/03/2020 15:00", "Kyiv", "Vienna", 160);
+        assertTrue(flight.getTimeToFlight());
     }
 
     @Test
     void getFormattedDepartureTime () throws ParseException {
         Flight flight = new Flight("09/03/2020 15:00", "Kyiv", "Stockholm", 140);
-        String str = "9/3/2020 15:00";
+        String str = "9/3/2020";
         assertEquals(str, flight.getFormattedDepartureTime());
     }
 

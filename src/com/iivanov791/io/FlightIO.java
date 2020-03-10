@@ -1,11 +1,18 @@
 package com.iivanov791.io;
 
 import com.iivanov791.flight.Flight;
-import com.iivanov791.flight.controller.FlightController;
-
 import java.io.*;
-import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+
+/*
+ * Class FlightIO responsible for input output flights from/to local files on the pc. Contains two methods of read and write
+ * objects.
+ *
+ * @version 1.0 10 Mar 2020
+ *
+ * @author  Igor Ivanov
+ * */
 
 public class FlightIO {
 
@@ -26,18 +33,19 @@ public class FlightIO {
         file.close();
     }
 
-    public void readFlightsFromFile (String fileName) throws IOException, ClassNotFoundException, ParseException {
-        FlightController flightController = new FlightController();
+    public List<Flight> readFlightsFromFile (String fileName) throws IOException, ClassNotFoundException {
         FileInputStream file = new FileInputStream(fileName);
         ObjectInputStream objIn = new ObjectInputStream(file);
+        List<Flight> flights = new ArrayList<>();
         Flight flight;
 
         while (file.available() > 0) {
             flight = (Flight) objIn.readObject();
-            flightController.saveFlight(flight);
+            flights.add(flight);
         }
 
         objIn.close();
         file.close();
+        return flights;
     }
 }

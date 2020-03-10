@@ -7,13 +7,15 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /*
+* Class Flight contains 7 private fields, one of them is reservationList -> which contains all the reservations for this flight.
+* Two final Strings using for 4 Flight methods, also contains 3 overrided methods of toString(), equals() and hashcode();
 *
+* @version 1.0  10 Mar 2020
+*
+* @author  Igor Ivanov
 * */
 
 public class Flight implements Serializable {
@@ -23,12 +25,12 @@ public class Flight implements Serializable {
     private String departurePlace;
     private String arrivingPlace;
     private int placesAll;
-    private Map <Integer, Reservation> reservationMap = new HashMap<>(placesAll);
+    private List<Reservation> reservationList = new ArrayList<>(placesAll);
 
     private final static long serialVersionUID = 1L;
     final String DATE_FORMAT = "dd/MM/yyyy hh:mm";
-    final String PLACE_IS_TAKEN = "Sorry, place %d is taken. Choose another place \n";
-    final String OUT_OF_BOUND = "Sorry, place %d doesn't exist, while maximum capacity is %d";
+    final String PLACE_IS_TAKEN = "Sorry, all places already taken. Choose another flight \n";
+
 
     public int getID() {
         return ID;
@@ -42,8 +44,12 @@ public class Flight implements Serializable {
     public String getArrivingPlace() {
         return arrivingPlace;
     }
-    public Map<Integer, Reservation> getReservationMap() {
-        return reservationMap;
+    public List<Reservation> getReservationList() {
+        return reservationList;
+    }
+
+    public void setID (int ID) {
+        this.ID = ID;
     }
 
     public Flight(String departureTime, String departurePlace, String arrivingPlace, int placesAll) throws ParseException {
@@ -53,39 +59,45 @@ public class Flight implements Serializable {
         this.departurePlace = departurePlace;
         this.arrivingPlace = arrivingPlace;
         this.placesAll = placesAll;
-        this.ID++;
-        for (int i = 1; i <= placesAll; i++) {
-            this.reservationMap.put(i, null);
-        }
     }
 
+    /*
+    *  this mathod return number of free Places on the flight
+    * */
     public int getFreePlaces () {
         int counter = 0;
-        for (int i = 1; i <= reservationMap.size(); i++) {
-            if (reservationMap.get(i) == null) {
+        for (int i = 0; i < reservationList.size(); i++) {
+            if (reservationList.get(i) != null) {
                 counter++;
             }
         }
-        return counter;
+        return placesAll - counter;
     }
 
-    public void doReservation (int place, Reservation reservation) {
-       if (this.reservationMap.get(place) != null) {
-           System.out.printf(PLACE_IS_TAKEN, place);
-       } else if (place > this.reservationMap.size()) {
-           System.out.printf(OUT_OF_BOUND, place, this.placesAll);
+    /*
+    *  this method allows to do Reservation on the flight
+    * */
+    public void doReservation (Reservation reservation) {
+       if (this.getFreePlaces() > 0) {
+           this.reservationList.add(reservation);
        } else {
-           this.reservationMap.put(place, reservation);
+           System.out.println(PLACE_IS_TAKEN);
        }
     }
 
+    /*
+    * this method return boolean if it is less than 25 hours before the flight, than this method returns true, else - returns false
+    * */
     public boolean getTimeToFlight () {
         Date date = new Date();
         Date date1 = new Date(this.getDepartureTime());
         long diff = date1.getTime() - date.getTime();
-        return (int) (diff / (60*60*1000)) <= 24;
+        return (int) (diff / (60*60*1000)) < 25;
     }
 
+    /*
+    *  this method returns String of date value, converted from private long departure Time field
+    * */
     public String getFormattedDepartureTime() {
         Timestamp time = new Timestamp(this.getDepartureTime());
         LocalDateTime t = time.toLocalDateTime();
@@ -95,20 +107,16 @@ public class Flight implements Serializable {
                 .append("/")
                 .append(t.getMonth().getValue())
                 .append("/")
-                .append(t.getYear())
-                .append(" ")
-                .append(t.getHour())
-                .append(":")
-                .append(t.withMinute(t.getMinute()).toString().substring(14)));
+                .append(t.getYear()));
     }
 
     @Override
     public String toString() {
-        return this.getClass().getName() + "Flight " + getID() +
-                " {Departure Time=" + getFormattedDepartureTime() +
+        return this.getClass().getName() + " Flight ID: "  + getID() +
+                "{Departure Time=" + getFormattedDepartureTime() +
                 ", Departure Place='" + getDeparturePlace() + '\'' +
                 ", Arriving Place='" + getArrivingPlace() + '\'' +
-                ", Free PLaces=" + getFreePlaces() + '}';
+                ", Free Places=" + getFreePlaces() + '}';
     }
 
     @Override
@@ -118,11 +126,11 @@ public class Flight implements Serializable {
         Flight flight = (Flight) o;
         return getDeparturePlace().equals(flight.getDeparturePlace()) &&
                 getArrivingPlace().equals(flight.getArrivingPlace()) &&
-                getReservationMap().equals(flight.getReservationMap());
+                getReservationList().equals(flight.getReservationList());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDeparturePlace(), getArrivingPlace(), getReservationMap());
+        return Objects.hash(getDeparturePlace(), getArrivingPlace(), getReservationList());
     }
 }

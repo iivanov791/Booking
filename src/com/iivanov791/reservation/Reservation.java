@@ -4,17 +4,25 @@ import com.iivanov791.flight.Flight;
 import java.io.Serializable;
 import java.util.Objects;
 
+/*
+* Class Reservation consists of 4 fields: ID, userName, userSurname and Flight. To Create the instance of it u need to input name, surname
+* and instance of Flight. Also this class contains overrided to String(), equals() and hashCode();
+*
+* @version 1.0 10 Mar 2020
+*
+* @author  Igor Ivanov
+* */
+
 public class Reservation implements Serializable {
 
     private int ID;
     private String userName;
     private String userSurname;
-    private int place;
     private Flight flight;
 
     private final static long serialVersionUID = 1L;
 
-    public int getID() {
+    public int getID () {
         return ID;
     }
     public String getUserName() {
@@ -23,28 +31,26 @@ public class Reservation implements Serializable {
     public String getUserSurname() {
         return userSurname;
     }
-    public int getPlace() {
-        return place;
-    }
     public Flight getFlight() {
         return flight;
     }
 
-    public Reservation(String userName, String userSurname, Flight flight, int place) {
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+
+    public Reservation(String userName, String userSurname, Flight flight) {
         this.userName = userName;
         this.userSurname = userSurname;
         this.flight = flight;
-        this.ID++;
-        this.place = place;
-        this.flight.doReservation(this.getPlace(), this);
+        this.flight.doReservation(this);
     }
 
     @Override
     public String toString() {
-        return this.getClass().getName() + "Reservation " + getID() +
-                "{userName='" + getUserName() + '\'' +
+        return this.getClass().getName() + "Reservation ID: " + getID() +
+                " {userName='" + getUserName() + '\'' +
                 ", userSurname='" + getUserSurname() + '\'' +
-                ", places=" + getPlace() +
                 ", flight=" + getFlight().toString() +
                 '}';
     }
